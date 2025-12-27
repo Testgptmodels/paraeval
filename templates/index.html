@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>PARAEVAL: Paraphrase Quality Evaluator</title>
+  <style>
+    body { font-family: Arial; background:#f4f6f9; padding:20px; }
+    table { width:100%; border-collapse:collapse; margin-top:20px; }
+    th, td { padding:12px; border:1px solid #ccc; vertical-align:top; }
+    th { background:#222; color:white; }
+    .best { background:#d9f7d9; }
+    button { padding:8px 14px; cursor:pointer; }
+    .column-20ch { width:20ch; white-space:pre-line; }
+  </style>
+
+  <script>
+    function copyText(text) {
+      navigator.clipboard.writeText(text);
+      alert("Copied");
+    }
+
+    function updateValue(id, val) {
+      document.getElementById(id).innerText = val;
+    }
+
+    function fullReset() {
+      document.getElementById("semantic").value = 0;
+      document.getElementById("lexical").value = 0;
+      document.getElementById("semanticVal").innerText = "0";
+      document.getElementById("lexicalVal").innerText = "0";
+      document.getElementById("readability").selectedIndex = 0;
+      document.getElementById("myPassage").value = "";
+    }
+  </script>
+</head>
+
+<body>
+
+<h2 style="text-align:center;">PARAEVAL: Paraphrase Quality Evaluator</h2><br>
+
+<form method="post">
+  <div style="display:flex;gap:40px;align-items:center;flex-wrap:wrap">
+
+      <label><b>Readability</b></label>
+      <select name="readability" id="readability">
+        <option value="Primary" {{'selected' if readability=='Primary'}}>Primary</option>
+        <option value="Higher Secondary" {{'selected' if readability=='Higher Secondary'}}>Higher Secondary</option>
+        <option value="Undergraduate" {{'selected' if readability=='Undergraduate'}}>Undergraduate</option>
+        <option value="Graduate" {{'selected' if readability=='Graduate'}}>Graduate</option>
+      </select>
+    &emsp;
+    &emsp;
+      <b>Semantic Similarity &nbsp;<span id="semanticVal">{{semantic}}</span>%</b>
+      <input type="range" id="semantic" name="semantic" min="0" max="100"
+             value="{{semantic}}"
+             oninput="updateValue('semanticVal', this.value)">
+    &emsp;
+    &emsp;
+      <label><b>Lexical Reuse &nbsp;<span id="lexicalVal">{{lexical}}</span>%</b></label>
+      <input type="range" id="lexical" name="lexical" min="0" max="100"
+             value="{{lexical}}"
+             oninput="updateValue('lexicalVal', this.value)">
+
+
+  </div>
+
+  <br>
+
+  <textarea id="myPassage" name="passage" rows="10" style="width:100%" placeholder="Paste passage here...">{{passage}}</textarea>
+
+  <br><br>
+
+  <button type="submit">Submit</button>
+  <button type="button" onclick="fullReset()">Reset</button>
+</form>
+
+{% if results %}
+<table>
+<tr>
+  <th>Model / Human</th>
+  <th>Passage</th>
+  <th class="column-20ch">Statistics</th>
+  <th>Copy</th>
+</tr>
+
+{% for r in results %}
+<tr class="{% if loop.index0 == best_index %}best{% endif %}">
+  <td>{{r.model}}</td>
+  <td>{{r.text}}</td>
+  <td class="column-20ch">
+Semantic = {{r.semantic}}%<br>
+Lexical = {{r.lexical}}%<br>
+Decision = {{r.decision}}<br>
+Words = {{r.words}}<br>
+Sentences = {{r.sentences}}
+  </td>
+  <td>
+    <button onclick="copyText(`{{r.text|replace('`','')}}`)">Copy</button>
+  </td>
+</tr>
+{% endfor %}
+</table>
+{% endif %}
+
+</body>
+</html>

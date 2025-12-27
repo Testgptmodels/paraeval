@@ -1,0 +1,9 @@
+flask
+requests
+scikit-learn
+sentence-transformers
+python-dotenv
+google-generativeai
+openai
+nltk
+torch
